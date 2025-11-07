@@ -5,21 +5,37 @@ const SUPABASE_URL =
   process.env.SUPABASE_URL ??
   "https://wcphbjrnbrxfrdfecpoe.supabase.co";
 
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_SERVICE_ROLE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ??
+  process.env.NEXT_SUPABASE_SERVICE_ROLE_KEY;
 
-if (!SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY environment variable");
+type SupabaseAdminClient = ReturnType<typeof createClient> | null;
+
+let cachedAdminClient: SupabaseAdminClient = null;
+
+function getSupabaseAdmin() {
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error(
+      "Missing SUPABASE_SERVICE_ROLE_KEY (or NEXT_SUPABASE_SERVICE_ROLE_KEY) environment variable"
+    );
+  }
+
+  if (!cachedAdminClient) {
+    cachedAdminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+  }
+
+  return cachedAdminClient;
 }
-
-export const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
 
 export async function ensureSupabaseUser(email: string) {
   const normalizedEmail = email.trim().toLowerCase();
+
+  const supabaseAdmin = getSupabaseAdmin();
 
   const { error } = await supabaseAdmin.auth.admin.createUser({
     email: normalizedEmail,
