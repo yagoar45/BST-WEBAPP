@@ -4,10 +4,12 @@ import ProtocoleEmail from "./mail";
 import { render } from "@react-email/render";
 
 const resendApiKey =
-  process.env.RESEND_API_KEY ?? process.env.NEXT_RESEND_API_KEY;
+  process.env.NEXT_RESEND_API_KEY ?? process.env.RESEND_API_KEY;
 
 if (!resendApiKey) {
-  throw new Error("Missing RESEND_API_KEY environment variable");
+  throw new Error(
+    "Missing NEXT_RESEND_API_KEY (or RESEND_API_KEY) environment variable"
+  );
 }
 
 const resend = new Resend(resendApiKey);
