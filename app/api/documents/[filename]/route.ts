@@ -21,8 +21,10 @@ function sanitizeFilename(filename: string) {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { filename: string } }
+  context: { params: Promise<{ filename: string }> }
 ) {
+  const { filename } = await context.params;
+
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -32,7 +34,7 @@ export async function GET(
     });
   }
 
-  const safeName = sanitizeFilename(params.filename);
+  const safeName = sanitizeFilename(filename);
 
   if (!safeName) {
     return new Response(JSON.stringify({ error: "Invalid document" }), {

@@ -6,8 +6,9 @@ import {
   getSupabaseAdmin,
 } from "@/integrations/supabase-admin";
 
-function getAccessTokenFromCookies(): string | null {
-  const cookieValue = cookies().get(SUPABASE_AUTH_COOKIE_NAME)?.value;
+async function getAccessTokenFromCookies(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const cookieValue = cookieStore.get(SUPABASE_AUTH_COOKIE_NAME)?.value;
 
   if (!cookieValue) {
     return null;
@@ -23,7 +24,7 @@ function getAccessTokenFromCookies(): string | null {
 }
 
 export async function getAuthenticatedUser(): Promise<User | null> {
-  const accessToken = getAccessTokenFromCookies();
+  const accessToken = await getAccessTokenFromCookies();
 
   if (!accessToken) {
     return null;
