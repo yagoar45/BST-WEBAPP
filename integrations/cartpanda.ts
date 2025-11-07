@@ -1,8 +1,5 @@
-import crypto from "node:crypto";
-import { Buffer } from "node:buffer";
-
-const CARTPANDA_SIGNATURE_HEADER = "x-cartpanda-signature";
-const CARTPANDA_EVENT_HEADER = "x-cartpanda-event";
+import { ensureSupabaseUser } from "./supabase-admin";
+import { sendWelcomeEmail } from "./resend";
 
 export type CartpandaWebhookEvent<TData = unknown> = {
   id: string;
@@ -19,46 +16,6 @@ export class CartpandaWebhookError extends Error {
   }
 }
 
-export function getCartpandaHeaders(request: Request) {
-  const signature = request.headers.get(CARTPANDA_SIGNATURE_HEADER);
-  const event = request.headers.get(CARTPANDA_EVENT_HEADER);
-
-  return { signature, event };
-}
-
-export function verifyCartpandaSignature(
-  rawBody: string,
-  signature: string | null,
-  secret = process.env.CARTPANDA_WEBHOOK_SECRET
-) {
-  if (!secret) {
-    throw new CartpandaWebhookError(
-      "Missing CARTPANDA_WEBHOOK_SECRET environment variable"
-    );
-  }
-
-  if (!signature) {
-    throw new CartpandaWebhookError(
-      `Missing ${CARTPANDA_SIGNATURE_HEADER} header`
-    );
-  }
-
-  const expected = crypto
-    .createHmac("sha256", secret)
-    .update(rawBody, "utf8")
-    .digest("hex");
-
-  const provided = Buffer.from(signature, "utf8");
-  const expectedBuffer = Buffer.from(expected, "utf8");
-
-  if (
-    provided.length !== expectedBuffer.length ||
-    !crypto.timingSafeEqual(provided, expectedBuffer)
-  ) {
-    throw new CartpandaWebhookError("Invalid webhook signature");
-  }
-}
-
 export function parseCartpandaEvent<TData = unknown>(rawBody: string) {
   try {
     return JSON.parse(rawBody) as CartpandaWebhookEvent<TData>;
@@ -67,10 +24,56 @@ export function parseCartpandaEvent<TData = unknown>(rawBody: string) {
   }
 }
 
+type CartpandaCustomer = {
+  email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  name?: string | null;
+};
+
+type CartpandaOrder = {
+  id: string;
+  number: string;
+  customer?: CartpandaCustomer | null;
+};
+
+type OrderPaidPayload = {
+  order: CartpandaOrder;
+  [key: string]: unknown;
+};
+
+async function handleOrderPaid(
+  event: CartpandaWebhookEvent<OrderPaidPayload>
+) {
+  const email = event.data?.order?.customer?.email?.trim();
+
+  if (!email) {
+    console.warn("Cartpanda order.paid received without customer email", {
+      eventId: event.id,
+      orderId: event.data?.order?.id,
+    });
+    return;
+  }
+
+  await ensureSupabaseUser(email);
+
+  const customer = event.data?.order?.customer;
+  const name = customer
+    ? [customer.first_name, customer.last_name]
+        .filter((part) => part && part.trim().length > 0)
+        .join(" ") || customer.name || undefined
+    : undefined;
+
+  await sendWelcomeEmail({ email, name });
+}
+
 export async function handleCartpandaEvent(
   event: CartpandaWebhookEvent
 ): Promise<void> {
   switch (event.type) {
+    case "order.paid":
+      await handleOrderPaid(event as CartpandaWebhookEvent<OrderPaidPayload>);
+      break;
     default: {
       console.info("Unhandled Cartpanda webhook", {
         type: event.type,
@@ -79,9 +82,4 @@ export async function handleCartpandaEvent(
     }
   }
 }
-
-export const cartpandaConstants = {
-  signatureHeader: CARTPANDA_SIGNATURE_HEADER,
-  eventHeader: CARTPANDA_EVENT_HEADER,
-};
 

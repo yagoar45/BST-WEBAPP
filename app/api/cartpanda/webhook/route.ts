@@ -3,38 +3,29 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   CartpandaWebhookError,
   CartpandaWebhookEvent,
-  cartpandaConstants,
-  getCartpandaHeaders,
   handleCartpandaEvent,
   parseCartpandaEvent,
-  verifyCartpandaSignature,
 } from "@/integrations/cartpanda";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function normalizeEvent(
-  event: CartpandaWebhookEvent,
-  fallbackType: string | null
-): CartpandaWebhookEvent {
+function normalizeEvent(event: CartpandaWebhookEvent): CartpandaWebhookEvent {
   if (event.type) {
     return event;
   }
 
   return {
     ...event,
-    type: fallbackType ?? "unknown",
+    type: "unknown",
   };
 }
 
 export async function POST(request: NextRequest) {
   const rawBody = await request.text();
-  const { signature, event } = getCartpandaHeaders(request);
 
   try {
-    verifyCartpandaSignature(rawBody, signature);
-
-    const payload = normalizeEvent(parseCartpandaEvent(rawBody), event);
+    const payload = normalizeEvent(parseCartpandaEvent(rawBody));
     await handleCartpandaEvent(payload);
 
     return NextResponse.json({ received: true });
@@ -42,7 +33,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof CartpandaWebhookError) {
       return NextResponse.json(
         { error: error.message },
-        { status: 400, headers: webhookErrorHeaders("validation") }
+        { status: 400 }
       );
     }
 
@@ -50,16 +41,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500, headers: webhookErrorHeaders("internal") }
+      { status: 500 }
     );
   }
-}
-
-function webhookErrorHeaders(reason: "validation" | "internal") {
-  return new Headers(
-    reason === "validation"
-      ? [[cartpandaConstants.eventHeader, "rejected-validation"]]
-      : [[cartpandaConstants.eventHeader, "rejected-internal"]]
-  );
 }
 
