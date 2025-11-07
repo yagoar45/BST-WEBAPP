@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL =
+export const SUPABASE_URL =
   process.env.NEXT_PUBLIC_SUPABASE_URL ??
   process.env.SUPABASE_URL ??
   "https://wcphbjrnbrxfrdfecpoe.supabase.co";
@@ -13,7 +13,11 @@ type SupabaseAdminClient = ReturnType<typeof createClient> | null;
 
 let cachedAdminClient: SupabaseAdminClient = null;
 
-function getSupabaseAdmin() {
+export const SUPABASE_PROJECT_REF = new URL(SUPABASE_URL).hostname.split(".")[0];
+
+export const SUPABASE_AUTH_COOKIE_NAME = `sb-${SUPABASE_PROJECT_REF}-auth-token`;
+
+export function getSupabaseAdmin() {
   if (!SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
       "Missing SUPABASE_SERVICE_ROLE_KEY (or NEXT_SUPABASE_SERVICE_ROLE_KEY) environment variable"

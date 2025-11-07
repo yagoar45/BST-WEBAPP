@@ -1,0 +1,19 @@
+   ### Cartpanda order.paid
+   POST http://app.votresante.site/api/cartpanda/webhook
+   Content-Type: application/json
+
+   {
+     "id": "evt_test",
+     "type": "order.paid",
+     "data": {
+       "order": {
+         "id": "ord_123",
+         "number": "#0001",
+         "customer": {
+           "email": "yagoaraujo398@gmail.com",
+           "first_name": "Jean",
+           "last_name": "Dupont"
+         }
+       }
+     }
+   }
