@@ -80,7 +80,7 @@ export default async function MateriaisDetailPage({
 
         <section className="rounded-[28px] border border-white/10 bg-black/55 p-2 shadow-[0_40px_120px_-70px_rgba(15,23,42,0.9)] backdrop-blur-xl sm:p-3">
           <div
-            className="w-full overflow-hidden rounded-[18px] border border-white/10 bg-black/90 shadow-inner"
+            className="hidden w-full overflow-hidden rounded-[18px] border border-white/10 bg-black/90 shadow-inner sm:block"
             style={{ height: "clamp(70vh, calc(100dvh - 240px), 84vh)" }}
           >
             <iframe
@@ -88,6 +88,22 @@ export default async function MateriaisDetailPage({
               className="h-full w-full border-0"
               title={currentDoc.title}
             />
+          </div>
+
+          <div className="flex flex-col gap-4 rounded-[18px] border border-white/10 bg-white/[0.05] p-5 shadow-inner text-white/80 sm:hidden">
+            <p className="text-sm leading-6">
+              Pour une lecture optimale sur mobile, ouvrez le document dans un
+              nouvel onglet. Vous pourrez zoomer et faire défiler toutes les pages
+              sans limitation depuis votre navigateur.
+            </p>
+            <a
+              href={`/api/documents/${encodeURIComponent(requestedFile)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-full bg-indigo-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-indigo-400"
+            >
+              Ouvrir le PDF dans un onglet dédié
+            </a>
           </div>
         </section>
       </main>
