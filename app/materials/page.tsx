@@ -20,12 +20,14 @@ export default async function MateriaisPage() {
   const docs = await listDocs();
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-6 py-16 text-white sm:px-12">
-      <div className="absolute -left-1/3 top-1/4 h-[35rem] w-[35rem] rounded-full bg-indigo-500/20 blur-[180px]" aria-hidden />
-      <div className="absolute bottom-1/4 -right-1/4 h-[30rem] w-[30rem] rounded-full bg-purple-500/20 blur-[160px]" aria-hidden />
-      <div className="absolute -bottom-20 left-1/2 h-[28rem] w-[40rem] -translate-x-1/2 rounded-full bg-emerald-400/10 blur-[220px]" aria-hidden />
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-14 text-white xs:px-5 sm:px-8">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-1/3 top-1/4 hidden h-[35rem] w-[35rem] rounded-full bg-indigo-500/20 blur-[180px] sm:block" aria-hidden />
+        <div className="absolute bottom-1/4 -right-1/4 hidden h-[30rem] w-[30rem] rounded-full bg-purple-500/20 blur-[160px] sm:block" aria-hidden />
+        <div className="absolute -bottom-20 left-1/2 hidden h-[28rem] w-[40rem] -translate-x-1/2 rounded-full bg-emerald-400/10 blur-[220px] sm:block" aria-hidden />
+      </div>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-8 rounded-3xl border border-white/10 bg-white/[0.04] px-5 py-10 shadow-[0_40px_120px_-60px_rgba(15,23,42,0.8)] backdrop-blur-2xl sm:gap-10 sm:px-8 sm:py-12 lg:px-14">
+      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-8 rounded-[28px] border border-white/10 bg-white/[0.04] px-4 py-8 shadow-[0_40px_120px_-60px_rgba(15,23,42,0.8)] backdrop-blur-2xl xs:px-5 xs:py-9 sm:gap-10 sm:px-8 sm:py-12 lg:px-14">
         <header className="space-y-4 text-center sm:text-left">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white/60">
             bibliothèque du protocole

@@ -7,17 +7,32 @@ const APP_BASE_URL = process.env.APP_BASE_URL;
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
-  const email = formData.get("email");
+  const emailEntry = formData.get("email");
 
-  if (typeof email !== "string" || email.trim().length === 0) {
+  if (typeof emailEntry !== "string" || emailEntry.trim().length === 0) {
     return new Response(JSON.stringify({ error: "Invalid email" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedEmail = emailEntry.trim().toLowerCase();
   const user = await findSupabaseUserByEmail(normalizedEmail);
+
+  console.log("user", user);
+
+  if (!user) {
+    const loginUrl = new URL(
+      `/login?${new URLSearchParams({
+        error: "not_found",
+        email: normalizedEmail,
+      }).toString()}`,
+      APP_BASE_URL ?? request.nextUrl.origin
+    );
+    const response = NextResponse.redirect(loginUrl);
+    response.cookies.delete(SESSION_COOKIE_NAME);
+    return response;
+  }
 
   const redirectParam = formData.get("redirect_to");
   const redirectTarget =
@@ -30,14 +45,6 @@ export async function POST(request: NextRequest) {
   const finalRedirect = redirectTarget.startsWith("http")
     ? redirectTarget
     : new URL(redirectTarget, baseUrl).toString();
-
-  if (!user) {
-    const loginUrl = new URL(
-      `/login?${new URLSearchParams({ error: "not_found", email: normalizedEmail }).toString()}`,
-      request.url
-    );
-    return NextResponse.redirect(loginUrl);
-  }
 
   const response = NextResponse.redirect(finalRedirect);
   response.cookies.set(SESSION_COOKIE_NAME, normalizedEmail, {

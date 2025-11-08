@@ -62,8 +62,10 @@ export async function findSupabaseUserByEmail(email: string) {
     );
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+
   const url = new URL("/auth/v1/admin/users", SUPABASE_URL);
-  url.searchParams.set("email", email.trim().toLowerCase());
+  url.searchParams.set("email", normalizedEmail);
 
   const response = await fetch(url.toString(), {
     headers: {
@@ -81,5 +83,9 @@ export async function findSupabaseUserByEmail(email: string) {
     users?: Array<{ id: string; email?: string }>;
   };
 
-  return data.users?.[0] ?? null;
+  const matchedUser = data.users?.find(
+    (user) => user.email?.trim().toLowerCase() === normalizedEmail
+  );
+
+  return matchedUser ?? null;
 }

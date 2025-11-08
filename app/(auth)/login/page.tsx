@@ -16,20 +16,24 @@ export const metadata: Metadata = {
 };
 
 type LoginPageProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export default async function LoginPage({
   searchParams,
 }: LoginPageProps = {}) {
+  const resolvedParams =
+    typeof searchParams === "object" && searchParams !== null
+      ? await searchParams
+      : {};
+  const emailParam = resolvedParams.email;
+  const errorParam = resolvedParams.error;
+
   const sessionEmail = await getAuthenticatedEmail();
 
-  if (sessionEmail) {
+  if (sessionEmail && errorParam !== "not_found") {
     redirect("/materials");
   }
-
-  const emailParam = searchParams?.email;
-  const errorParam = searchParams?.error;
 
   const emailPrefill = Array.isArray(emailParam)
     ? emailParam[0] ?? ""
@@ -130,7 +134,7 @@ function AuthCard({
 
           <input type="hidden" name="redirect_to" value="/materials" />
 
-          <Button type="submit" className="h-11 w-full text-base font-semibold">
+          <Button type="submit" className="h-11 w-full cursor-pointer text-base font-semibold">
             Recevoir mon lien sécurisé
           </Button>
 

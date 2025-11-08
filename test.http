@@ -7,12 +7,12 @@
      "type": "order.paid",
      "data": {
        "order": {
-         "id": "ord_123",
-         "number": "#0001",
+         "id": "ord_1234",
+         "number": "#0002",
          "customer": {
-           "email": "yagoaraujo398@gmail.com",
-           "first_name": "Jean",
-           "last_name": "Dupont"
+           "email": "acesso@cartpanda.com",
+           "first_name": "Cartpanda",
+           "last_name": "Company"
          }
        }
      }
