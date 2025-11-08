@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
   const normalizedEmail = emailEntry.trim().toLowerCase();
   const user = await findSupabaseUserByEmail(normalizedEmail);
 
-  console.log("user", user);
 
   if (!user) {
     const loginUrl = new URL(

@@ -39,20 +39,31 @@ export default async function MateriaisDetailPage({
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-12 text-white sm:px-6 lg:px-8">
-      <div className="absolute -left-1/3 top-1/4 hidden h-[35rem] w-[35rem] rounded-full bg-indigo-500/20 blur-[180px] sm:block" aria-hidden />
-      <div className="absolute bottom-1/4 -right-1/4 hidden h-[30rem] w-[30rem] rounded-full bg-purple-500/20 blur-[160px] sm:block" aria-hidden />
-      <div className="absolute -bottom-20 left-1/2 hidden h-[28rem] w-[40rem] -translate-x-1/2 rounded-full bg-emerald-400/10 blur-[220px] sm:block" aria-hidden />
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-12 text-white xs:px-5 sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -left-1/3 top-1/4 hidden h-[32rem] w-[32rem] rounded-full bg-indigo-500/25 blur-[170px] sm:block"
+          aria-hidden
+        />
+        <div
+          className="absolute bottom-1/4 -right-1/4 hidden h-[28rem] w-[28rem] rounded-full bg-purple-500/25 blur-[160px] sm:block"
+          aria-hidden
+        />
+        <div
+          className="absolute -bottom-24 left-1/2 hidden h-[26rem] w-[36rem] -translate-x-1/2 rounded-full bg-emerald-400/15 blur-[200px] sm:block"
+          aria-hidden
+        />
+      </div>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-3xl border border-white/10 bg-white/[0.04] px-4 py-8 shadow-[0_40px_120px_-60px_rgba(15,23,42,0.8)] backdrop-blur-2xl sm:gap-8 sm:px-8 sm:py-10">
-        <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.3em] text-white/50">
+      <main className="relative z-10 mx-auto flex w-full max-w-4xl flex-col gap-6">
+        <section className="rounded-3xl border border-white/10 bg-white/[0.08] px-4 py-6 shadow-[0_30px_90px_-65px_rgba(15,23,42,1)] backdrop-blur-xl xs:px-5 sm:px-7 sm:py-7">
+          <p className="text-xs uppercase tracking-[0.35em] text-white/50">
             document sécurisé
           </p>
-          <h1 className="text-2xl font-semibold text-white sm:text-3xl">
+          <h1 className="mt-3 text-2xl font-semibold leading-snug text-white sm:text-3xl">
             {currentDoc.title}
           </h1>
-          <p className="text-sm text-white/60">
+          <p className="mt-3 text-sm text-white/65 sm:text-base">
             Si le lecteur ne s'affiche pas, vous pouvez
             {" "}
             <a
@@ -65,15 +76,17 @@ export default async function MateriaisDetailPage({
             </a>
             .
           </p>
-        </header>
+        </section>
 
-        <div className="aspect-[3/4] w-full overflow-hidden rounded-2xl border border-white/10 bg-black/60 shadow-inner sm:aspect-[4/5] lg:aspect-[4/3]">
-          <iframe
-            src={`/api/documents/${encodeURIComponent(requestedFile)}`}
-            className="h-full w-full border-0"
-            title={currentDoc.title}
-          />
-        </div>
+        <section className="rounded-[28px] border border-white/10 bg-black/55 p-2 shadow-[0_40px_120px_-70px_rgba(15,23,42,0.9)] backdrop-blur-xl sm:p-3">
+          <div className="h-[68vh] w-full overflow-hidden rounded-[18px] border border-white/10 bg-black/90 shadow-inner sm:h-[72vh] lg:h-[78vh]">
+            <iframe
+              src={`/api/documents/${encodeURIComponent(requestedFile)}`}
+              className="h-full w-full border-0"
+              title={currentDoc.title}
+            />
+          </div>
+        </section>
       </main>
     </div>
   );
