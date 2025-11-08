@@ -79,7 +79,10 @@ export default async function MateriaisDetailPage({
         </section>
 
         <section className="rounded-[28px] border border-white/10 bg-black/55 p-2 shadow-[0_40px_120px_-70px_rgba(15,23,42,0.9)] backdrop-blur-xl sm:p-3">
-          <div className="h-[68vh] w-full overflow-hidden rounded-[18px] border border-white/10 bg-black/90 shadow-inner sm:h-[72vh] lg:h-[78vh]">
+          <div
+            className="w-full overflow-hidden rounded-[18px] border border-white/10 bg-black/90 shadow-inner"
+            style={{ height: "clamp(70vh, calc(100dvh - 240px), 84vh)" }}
+          >
             <iframe
               src={`/api/documents/${encodeURIComponent(requestedFile)}`}
               className="h-full w-full border-0"
