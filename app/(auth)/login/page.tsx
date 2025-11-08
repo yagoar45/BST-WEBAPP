@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowRight, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getAuthenticatedEmail } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Connexion – Protocole de traitement de l'impuissance",
@@ -13,13 +15,36 @@ export const metadata: Metadata = {
     "Connectez-vous pour suivre vos patients et automatiser vos séquences Protocole de traitement de l'impuissance.",
 };
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams?: Record<string, string | string[] | undefined>;
+};
+
+export default async function LoginPage({
+  searchParams,
+}: LoginPageProps = {}) {
+  const sessionEmail = await getAuthenticatedEmail();
+
+  if (sessionEmail) {
+    redirect("/materials");
+  }
+
+  const emailParam = searchParams?.email;
+  const errorParam = searchParams?.error;
+
+  const emailPrefill = Array.isArray(emailParam)
+    ? emailParam[0] ?? ""
+    : emailParam ?? "";
+
+  const hasError = Array.isArray(errorParam)
+    ? errorParam.includes("not_found")
+    : errorParam === "not_found";
+
   return (
     <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
       <BackgroundGlow />
       <div className="relative z-10 grid min-h-screen w-full grid-cols-1 items-center justify-items-center gap-12 px-6 py-16 sm:px-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:px-16">
         <HeroPanel />
-        <AuthCard />
+        <AuthCard emailPrefill={emailPrefill} hasError={hasError} />
       </div>
     </div>
   );
@@ -62,7 +87,13 @@ function HeroPanel() {
   );
 }
 
-function AuthCard() {
+function AuthCard({
+  emailPrefill,
+  hasError,
+}: {
+  emailPrefill: string;
+  hasError: boolean;
+}) {
   return (
     <section className="relative w-full max-w-md">
       <div className="absolute inset-0 -z-[1] rounded-3xl bg-white/10 blur-3xl" aria-hidden />
@@ -77,7 +108,7 @@ function AuthCard() {
           </p>
         </header>
 
-        <form className="mt-10 space-y-6" noValidate>
+        <form className="mt-10 space-y-6" action="/login/action" method="post">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-white/80">
               Votre adresse e-mail
@@ -92,17 +123,34 @@ function AuthCard() {
                 className="pl-10 text-white placeholder:text-white/30"
                 autoComplete="email"
                 required
+                defaultValue={emailPrefill}
               />
             </div>
           </div>
+
+          <input type="hidden" name="redirect_to" value="/materials" />
 
           <Button type="submit" className="h-11 w-full text-base font-semibold">
             Recevoir mon lien sécurisé
           </Button>
 
-          <p className="text-xs text-white/50">
-            Utilisez la même adresse e-mail que lors de votre achat : nous vous enverrons immédiatement un lien pour accéder à vos e-books et fiches d'exercices dans la plateforme, sans mot de passe.
-          </p>
+          <div className="space-y-2">
+            <p className="text-xs text-white/50">
+              Utilisez la même adresse e-mail que lors de votre achat : nous vous enverrons immédiatement un lien pour accéder à vos e-books et fiches d'exercices dans la plateforme, sans mot de passe.
+            </p>
+            {hasError ? (
+              <p className="rounded-lg border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-xs text-rose-200">
+                Nous n'avons pas trouvé cet e-mail dans notre programme. Vérifiez votre adresse ou contactez
+                <a
+                  href="mailto:contact@votresante.site"
+                  className="ml-1 underline decoration-rose-200/60 underline-offset-4 hover:decoration-rose-100"
+                >
+                  contact@votresante.site
+                </a>
+                pour obtenir de l'aide.
+              </p>
+            ) : null}
+          </div>
         </form>
 
         <footer className="mt-10 flex flex-col gap-3 text-center text-xs text-white/40">

@@ -5,7 +5,7 @@ export const SUPABASE_URL =
   process.env.SUPABASE_URL ??
   "https://wcphbjrnbrxfrdfecpoe.supabase.co";
 
-const SUPABASE_SERVICE_ROLE_KEY =
+export const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ??
   process.env.NEXT_SUPABASE_SERVICE_ROLE_KEY;
 
@@ -53,4 +53,33 @@ export async function ensureSupabaseUser(email: string) {
 
     throw error;
   }
+}
+
+export async function findSupabaseUserByEmail(email: string) {
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error(
+      "Missing SUPABASE_SERVICE_ROLE_KEY (or NEXT_SUPABASE_SERVICE_ROLE_KEY) environment variable"
+    );
+  }
+
+  const url = new URL("/auth/v1/admin/users", SUPABASE_URL);
+  url.searchParams.set("email", email.trim().toLowerCase());
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      apikey: SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Supabase user: ${response.status}`);
+  }
+
+  const data = (await response.json()) as {
+    users?: Array<{ id: string; email?: string }>;
+  };
+
+  return data.users?.[0] ?? null;
 }

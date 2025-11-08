@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-import { getAuthenticatedUser } from "@/lib/auth";
+import { getAuthenticatedEmail } from "@/lib/auth";
 import { resolveDocPath } from "@/lib/docs";
 
 function sanitizeFilename(filename: string) {
@@ -21,20 +21,25 @@ function sanitizeFilename(filename: string) {
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ filename: string }> }
+  context: { params: Promise<{ filename?: string | string[] }> }
 ) {
   const { filename } = await context.params;
+  const requested = Array.isArray(filename)
+    ? filename.map((segment) => decodeURIComponent(segment)).join("/")
+    : filename
+      ? decodeURIComponent(filename)
+      : "";
 
-  const user = await getAuthenticatedUser();
+  const email = await getAuthenticatedEmail();
 
-  if (!user) {
+  if (!email) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  const safeName = sanitizeFilename(filename);
+  const safeName = sanitizeFilename(requested);
 
   if (!safeName) {
     return new Response(JSON.stringify({ error: "Invalid document" }), {

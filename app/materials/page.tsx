@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { getAuthenticatedUser } from "@/lib/auth";
+import { getAuthenticatedEmail } from "@/lib/auth";
 import { listDocs } from "@/lib/docs";
 
 export const metadata = {
@@ -11,10 +11,10 @@ export const metadata = {
 };
 
 export default async function MateriaisPage() {
-  const user = await getAuthenticatedUser();
+  const email = await getAuthenticatedEmail();
 
-  if (!user) {
-    redirect("/login?redirectTo=/materiais");
+  if (!email) {
+    redirect("/login?redirectTo=/materials");
   }
 
   const docs = await listDocs();
@@ -25,7 +25,7 @@ export default async function MateriaisPage() {
       <div className="absolute bottom-1/4 -right-1/4 h-[30rem] w-[30rem] rounded-full bg-purple-500/20 blur-[160px]" aria-hidden />
       <div className="absolute -bottom-20 left-1/2 h-[28rem] w-[40rem] -translate-x-1/2 rounded-full bg-emerald-400/10 blur-[220px]" aria-hidden />
 
-      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-10 rounded-3xl border border-white/10 bg-white/[0.04] px-8 py-12 shadow-[0_40px_120px_-60px_rgba(15,23,42,0.8)] backdrop-blur-2xl sm:px-14">
+      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-8 rounded-3xl border border-white/10 bg-white/[0.04] px-5 py-10 shadow-[0_40px_120px_-60px_rgba(15,23,42,0.8)] backdrop-blur-2xl sm:gap-10 sm:px-8 sm:py-12 lg:px-14">
         <header className="space-y-4 text-center sm:text-left">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white/60">
             bibliothèque du protocole
@@ -40,15 +40,15 @@ export default async function MateriaisPage() {
         </header>
 
         {docs.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center text-white/60">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-white/60 sm:p-8">
             Aucun document n'est disponible pour le moment.
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             {docs.map((doc) => (
               <article
                 key={doc.filename}
-                className="flex h-full flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.05] p-6 shadow-[0_25px_80px_-50px_rgba(15,23,42,1)] transition hover:border-white/40 hover:bg-white/[0.08]"
+                className="flex h-full flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.05] p-5 shadow-[0_25px_80px_-50px_rgba(15,23,42,1)] transition hover:border-white/40 hover:bg-white/[0.08] sm:p-6"
               >
                 <div className="space-y-2">
                   <h2 className="text-xl font-semibold text-white">
@@ -61,7 +61,7 @@ export default async function MateriaisPage() {
                     lecture sécurisée
                   </span>
                   <Link
-                    href={`/materiais/${encodeURIComponent(doc.filename)}`}
+                    href={`/materials/${encodeURIComponent(doc.filename)}`}
                     className="inline-flex items-center rounded-full bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-400"
                   >
                     Ouvrir
